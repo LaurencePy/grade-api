@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc;
 public class Student
 {
@@ -31,37 +30,52 @@ public class StudentsController : ControllerBase
 
         if (student is null)
         {
-            return NotFound();
+            return NotFound($"No student found with id: {id}");
         }
 
         return Ok(student);
     }
 
     [HttpPost]
-    public ActionResult<Student> Create(Student newStudent)
+    public ActionResult<Student> Create(StudentDto newStudent)
     {
-        newStudent.Id = students.Count > 0  ? students.Max(s => s.Id) + 1 : 1;
-        students.Add(newStudent);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest($"State is not valid: {ModelState}");
+        }
+
+        var student = new Student
+        {
+            Id = students.Count > 0 ? students.Max(s => s.Id) + 1 : 1,
+            Name = newStudent.Name,
+            Score = newStudent.Score
+        };
+        students.Add(student);
         return CreatedAtAction(nameof(GetById), new
         {
-            id = newStudent.Id
+            id = student.Id
         },
-        newStudent);
+        student);
     }
 
-    [HttpPut]
-    public ActionResult<Student> Update(int id, Student updated)
+    [HttpPut("{id}")]
+    public ActionResult<Student> Update(int id, StudentDto updated)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest($"State is not valid: {ModelState}");
+        }
+
         var student = students.FirstOrDefault(s => s.Id == id);
 
         if (student is null)
         {
-            return NotFound();
+            return NotFound($"No student found with id: {id}");
         }
 
         student.Name = updated.Name;
         student.Score = updated.Score;
-        return Ok(student);
+        return NoContent();
     }
 
     [HttpDelete]
@@ -71,7 +85,7 @@ public class StudentsController : ControllerBase
 
         if (student is null)
         {
-            return NotFound();
+            return NotFound($"No student found with id: {id}");
         }
 
         students.Remove(student);

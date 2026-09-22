@@ -30,3 +30,4 @@ C:\Documents\firebrand-training\grade-api\obj\Debug\net8.0\refint\grade-api.dll
 C:\Documents\firebrand-training\grade-api\obj\Debug\net8.0\grade-api.pdb
 C:\Documents\firebrand-training\grade-api\obj\Debug\net8.0\grade-api.genruntimeconfig.cache
 C:\Documents\firebrand-training\grade-api\obj\Debug\net8.0\ref\grade-api.dll
+C:\Documents\firebrand-training\grade-api\obj\Debug\net8.0\grade-api.sourcelink.json
