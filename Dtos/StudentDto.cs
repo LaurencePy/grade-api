@@ -7,7 +7,5 @@ public class StudentDto
 
     [Range(0,100)]
     public int Score { get; set; }
-
-    public List<int> Courses { get; set; } = [];
 }
 

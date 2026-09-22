@@ -4,8 +4,6 @@ public class Student
     public int Id { get; set; }
     public string Name { get; set; } = "";
     public int Score { get; set; }
-
-    public List<int> Courses { get; set; } = [];
 }
 
 [ApiController]
@@ -14,9 +12,9 @@ public class StudentsController : ControllerBase
 {
     private static List<Student> students = new()
     {
-        new Student { Id = 1, Name = "Amara Osei", Score = 72, Courses = [1] },
-        new Student { Id = 2, Name = "Dev Patel", Score = 58, Courses = [1,2] },
-        new Student { Id = 3, Name = "Sofia Mensah", Score = 91, Courses = [2,3] },
+        new Student { Id = 1, Name = "Amara Osei", Score = 72 },
+        new Student { Id = 2, Name = "Dev Patel", Score = 58 },
+        new Student { Id = 3, Name = "Sofia Mensah", Score = 91 },
     };
 
     [HttpGet]
@@ -50,8 +48,7 @@ public class StudentsController : ControllerBase
         {
             Id = students.Count > 0 ? students.Max(s => s.Id) + 1 : 1,
             Name = newStudent.Name,
-            Score = newStudent.Score,
-            Courses = newStudent.Courses
+            Score = newStudent.Score
         };
         students.Add(student);
         return CreatedAtAction(nameof(GetById), new
@@ -78,7 +75,6 @@ public class StudentsController : ControllerBase
 
         student.Name = updated.Name;
         student.Score = updated.Score;
-        student.Courses = updated.Courses;
         return NoContent();
     }
 
