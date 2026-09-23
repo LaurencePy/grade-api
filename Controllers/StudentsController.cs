@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 public class Student
 {
     public int Id { get; set; }
@@ -7,6 +8,8 @@ public class Student
 
     public List<int> Courses { get; set; } = [];
 }
+
+
 
 [ApiController]
 [Route("api/[controller]")]
@@ -20,26 +23,31 @@ public class StudentsController : ControllerBase
     };
 
     [HttpGet]
-    public ActionResult<List<Student>> GetAll()
+    public async Task<ActionResult<List<Student>>> GetAll()
     {
+        var students = await _context.Students.ToListAsync();
         return Ok(students);
     }
 
-    [HttpGet("{id}")]
-    public ActionResult<Student> GetById(int id)
+    private readonly ILogger<StudentsController> _logger;
+    private readonly AppDbContext _context;
+
+    public StudentsController(ILogger<StudentsController> logger, AppDbContext context)
     {
-        var student = students.FirstOrDefault(s => s.Id == id);
+        _logger = logger;
+        _context = context;
+    }
 
-        if (student is null)
-        {
-            return NotFound($"No student found with id: {id}");
-        }
-
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Student>> GetById(int id)
+    {
+        var student = await _context.Students.FindAsync(id);
+        if (student == null) return NotFound();
         return Ok(student);
     }
 
     [HttpPost]
-    public ActionResult<Student> Create(StudentDto newStudent)
+    public async Task<ActionResult<Student>> Create(StudentDto newStudent)
     {
         if (!ModelState.IsValid)
         {
@@ -48,28 +56,28 @@ public class StudentsController : ControllerBase
 
         var student = new Student
         {
-            Id = students.Count > 0 ? students.Max(s => s.Id) + 1 : 1,
             Name = newStudent.Name,
             Score = newStudent.Score,
             Courses = newStudent.Courses
         };
-        students.Add(student);
+        _context.Students.Add(student);
+        await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetById), new
         {
             id = student.Id
         },
         student);
     }
-
+public int Id { get; set; }
     [HttpPut("{id}")]
-    public ActionResult<Student> Update(int id, StudentDto updated)
+    public async Task<IActionResult> Update(int id, StudentDto updated)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest($"State is not valid: {ModelState}");
         }
 
-        var student = students.FirstOrDefault(s => s.Id == id);
+        var student = await _context.Students.FindAsync(id);
 
         if (student is null)
         {
@@ -79,22 +87,25 @@ public class StudentsController : ControllerBase
         student.Name = updated.Name;
         student.Score = updated.Score;
         student.Courses = updated.Courses;
+        await _context.SaveChangesAsync();
         return NoContent();
     }
 
-    [HttpDelete]
-    public ActionResult<Student> Delete(int id)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
     {
-        var student = students.FirstOrDefault(s => s.Id == id);
+        var student = await _context.Students.FindAsync(id);
 
         if (student is null)
         {
             return NotFound($"No student found with id: {id}");
         }
 
-        students.Remove(student);
+        _context.Students.Remove(student);
+        await _context.SaveChangesAsync();
         return NoContent();
     }
+
 
 
 }

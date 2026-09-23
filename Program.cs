@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -19,8 +21,29 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    if (!context.Students.Any())
+    {
+        context.Students.AddRange(
+            new Student { Name = "Ava Thompson", Score = 88 },
+            new Student { Name = "Liam Chen", Score = 74 },
+            new Student { Name = "Sofia Martinez", Score = 91 },
+            new Student { Name = "Noah Patel", Score = 65 },
+            new Student { Name = "Isla Robertson", Score = 79 }
+        );
+
+        context.SaveChanges();
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
